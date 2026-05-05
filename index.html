@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Starbucks x402</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+<style>
+  :root {
+    --bg:     #0a0a0a;
+    --card:   #141414;
+    --border: #2a2a2a;
+    --green:  #00a862;
+    --text:   #f0ede8;
+    --muted:  #888;
+    --font:   'Georgia', serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+  header { text-align: center; margin-bottom: 36px; }
+  header h1 { font-size: 28px; font-weight: normal; letter-spacing: 0.15em; color: var(--green); }
+  header p  { font-size: 13px; color: var(--muted); margin-top: 6px; letter-spacing: 0.05em; }
+
+  .wallet-bar {
+    width: 100%; max-width: 480px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+  }
+  .wallet-bar .addr { color: var(--muted); font-size: 12px; }
+  .wallet-bar .bal  { color: var(--green); font-weight: bold; }
+  #btnConnect {
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: var(--font);
+    font-size: 13px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+  }
+  #btnConnect:hover { opacity: 0.85; }
+
+  .menu {
+    width: 100%; max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .menu-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.2s;
+  }
+  .menu-item:hover { border-color: var(--green); }
+  .menu-item .name  { font-size: 15px; letter-spacing: 0.05em; }
+  .menu-item .price { font-size: 13px; color: var(--muted); margin: 0 16px; }
+  .menu-item button {
+    background: none;
+    border: 1px solid var(--green);
+    color: var(--green);
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-family: var(--font);
+    font-size: 13px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+  .menu-item button:hover { background: var(--green); color: #fff; }
+  .menu-item button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .receipt-box {
+    width: 100%; max-width: 480px;
+    background: #0d1f14;
+    border: 1px solid var(--green);
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-size: 13px;
+    line-height: 2;
+    display: none;
+    margin-bottom: 16px;
+  }
+  .receipt-box.show { display: block; }
+  .receipt-box .r-title { color: var(--green); margin-bottom: 6px; letter-spacing: 0.1em; }
+  .receipt-box .r-row { display: flex; justify-content: space-between; }
+  .receipt-box .r-key { color: var(--muted); }
+  .receipt-box .r-val { color: var(--text); font-size: 11px; word-break: break-all; max-width: 260px; text-align: right; }
+  .receipt-box a { color: var(--green); font-size: 11px; }
+
+  .log-box {
+    width: 100%; max-width: 480px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .log-box h3 { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 8px; font-weight: normal; }
+  .log { height: 180px; overflow-y: auto; font-size: 11px; line-height: 1.9; font-family: 'Courier New', monospace; }
+  .ok   { color: #3fb950; }
+  .warn { color: #e3b341; }
+  .err  { color: #f85149; }
+  .dim  { color: #555; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>STARBUCKS</h1>
+  <p>x402 결제 프로토콜 — 학습 실습</p>
+</header>
+
+<!-- 지갑 상태 -->
+<div class="wallet-bar">
+  <div>
+    <div class="addr" id="walletAddr">지갑 미연결</div>
+    <div class="bal"  id="walletBal">— ETH</div>
+  </div>
+  <button id="btnConnect" onclick="connectWallet()">MetaMask 연결</button>
+</div>
+
+<!-- 메뉴 -->
+<div class="menu">
+  <div class="menu-item">
+    <span class="name">아메리카노</span>
+    <span class="price">0.001 ETH</span>
+    <button onclick="orderItem('americano')" class="order-btn">주문</button>
+  </div>
+  <div class="menu-item">
+    <span class="name">카페라떼</span>
+    <span class="price">0.002 ETH</span>
+    <button onclick="orderItem('latte')" class="order-btn">주문</button>
+  </div>
+  <div class="menu-item">
+    <span class="name">에스프레소</span>
+    <span class="price">0.0015 ETH</span>
+    <button onclick="orderItem('espresso')" class="order-btn">주문</button>
+  </div>
+</div>
+
+<!-- 영수증 -->
+<div class="receipt-box" id="receipt">
+  <div class="r-title">결제 완료 (200 OK)</div>
+  <div id="receiptContent"></div>
+</div>
+
+<!-- 로그 -->
+<div class="log-box">
+  <h3>x402 통신 로그</h3>
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+// ── 설정 ──────────────────────────────────────────
+// 교수자가 배포 후 공유하는 값들
+const SERVER_URL       = "https://us-central1-starbucks-x402.cloudfunctions.net/order";
+const CONTRACT_ADDRESS = "0x29a662257cc1ec02f8e9cd49b1ae5524b7c53445";
+const CONTRACT_ABI     = [
+  "function pay(string calldata item) external payable",
+  "function getBalance() external view returns (uint256)"
+];
+
+// ── 상태 ──────────────────────────────────────────
+let provider = null;
+let signer   = null;
+let contract = null;
+let walletAddress = null;
+
+// ── 유틸 ──────────────────────────────────────────
+function log(msg, cls = '') {
+  const el  = document.getElementById('log');
+  const div = document.createElement('div');
+  div.className = cls;
+  div.textContent = msg;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function shortAddr(addr) {
+  return addr.slice(0, 6) + '...' + addr.slice(-4);
+}
+
+// ── Step 1: MetaMask 연결 ─────────────────────────
+async function connectWallet() {
+  if (!window.ethereum) {
+    alert("MetaMask 브라우저 확장을 설치해주세요.");
+    return;
+  }
+
+  try {
+    // MetaMask 팝업 — 지갑 연결 요청
+    provider = new ethers.BrowserProvider(window.ethereum);
+    const accounts = await provider.send("eth_requestAccounts", []);
+    signer        = await provider.getSigner();
+    walletAddress = await signer.getAddress();
+    contract      = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+    // 잔액 조회 (eth_call)
+    const balWei = await provider.getBalance(walletAddress);
+    const balEth = ethers.formatEther(balWei);
+
+    document.getElementById('walletAddr').textContent = shortAddr(walletAddress);
+    document.getElementById('walletBal').textContent  = parseFloat(balEth).toFixed(4) + ' ETH';
+    document.getElementById('btnConnect').textContent = '연결됨';
+    document.getElementById('btnConnect').disabled    = true;
+
+    log('지갑 연결: ' + walletAddress, 'ok');
+    log('잔액: ' + parseFloat(balEth).toFixed(4) + ' ETH', 'dim');
+
+  } catch (err) {
+    log('연결 실패: ' + err.message, 'err');
+  }
+}
+
+// ── Step 2: 주문 → 402 수신 → 서명 → 재요청 ─────
+async function orderItem(item) {
+  if (!walletAddress) {
+    alert("먼저 MetaMask를 연결해주세요.");
+    return;
+  }
+
+  document.querySelectorAll('.order-btn').forEach(b => b.disabled = true);
+  document.getElementById('receipt').classList.remove('show');
+
+  try {
+    // ① GET 요청 → 서버가 402 반환
+    log('─────────────────────', 'dim');
+    log('→ GET /order/' + item, '');
+
+    const res1 = await fetch(`${SERVER_URL}?item=${item}`);
+    const data1 = await res1.json();
+
+    if (res1.status !== 402) {
+      log('← ' + res1.status + ' ' + JSON.stringify(data1), 'err');
+      return;
+    }
+
+    log('← 402 Payment Required', 'warn');
+    log('  { amount: ' + data1.amount + ' ETH, to: ' + shortAddr(data1.to) + ' }', 'dim');
+
+    // ② HTTP 서명 생성 (MetaMask 팝업 발생)
+    // 실제 x402는 EIP-712 typed data 서명 사용
+    const message = JSON.stringify({
+      item,
+      amount:  data1.amount,
+      to:      data1.to,
+      from:    walletAddress,
+      nonce:   Date.now()
+    });
+
+    log('서명 요청 → MetaMask 팝업...', '');
+
+    // MetaMask 팝업 — 서명 요청
+    const signature = await signer.signMessage(message);
+    log('서명 완료: ' + signature.slice(0, 20) + '...', 'dim');
+
+    // ③ X-PAYMENT 헤더와 함께 재요청
+    const xPayment = btoa(JSON.stringify({
+      signature,
+      message,
+      from: walletAddress
+    }));
+
+    log('→ GET /order/' + item + ' + X-PAYMENT: {서명}', '');
+
+    const res2 = await fetch(`${SERVER_URL}?item=${item}`, {
+      headers: { 'X-PAYMENT': xPayment }
+    });
+    const data2 = await res2.json();
+
+    if (res2.status !== 200) {
+      log('← ' + res2.status + ' ' + data2.error, 'err');
+      return;
+    }
+
+    // ④ 200 OK
+    log('← 200 OK', 'ok');
+    log('  tx: ' + data2.receipt.tx, 'dim');
+
+    // 영수증 표시
+    const r = data2.receipt;
+    document.getElementById('receiptContent').innerHTML = `
+      <div class="r-row"><span class="r-key">메뉴</span><span class="r-val">${data2.message}</span></div>
+      <div class="r-row"><span class="r-key">from</span><span class="r-val">${r.from}</span></div>
+      <div class="r-row"><span class="r-key">to</span><span class="r-val">${r.to}</span></div>
+      <div class="r-row"><span class="r-key">금액</span><span class="r-val">${r.amount}</span></div>
+      <div class="r-row"><span class="r-key">tx</span><span class="r-val">
+        <a href="https://sepolia.etherscan.io/tx/${r.tx}" target="_blank">${r.tx.slice(0,20)}...</a>
+      </span></div>
+    `;
+    document.getElementById('receipt').classList.add('show');
+
+    // 잔액 갱신
+    const newBal = ethers.formatEther(await provider.getBalance(walletAddress));
+    document.getElementById('walletBal').textContent = parseFloat(newBal).toFixed(4) + ' ETH';
+
+  } catch (err) {
+    log('오류: ' + err.message, 'err');
+  } finally {
+    document.querySelectorAll('.order-btn').forEach(b => b.disabled = false);
+  }
+}
+</script>
+</body>
+</html>
