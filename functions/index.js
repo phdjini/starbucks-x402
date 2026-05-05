@@ -3,8 +3,8 @@ const ethers    = require("ethers");
 const cors      = require("cors")({ origin: true });
 
 // ── 설정 ──────────────────────────────────────────
-const CONTRACT_ADDRESS = "0xYOUR_CONTRACT_ADDRESS"; // Remix 배포 후 교체
-const ALCHEMY_URL      = "https://eth-sepolia.g.alchemy.com/v2/YOUR_API_KEY";
+const CONTRACT_ADDRESS = "0x29a662257cc1ec02f8e9cd49b1ae5524b7c53445"; // Remix 배포 후 교체
+const ALCHEMY_URL      = "https://sepolia.infura.io/v3/98e5c12aab8b43018d2e0e4eb0f0051a";
 
 const CONTRACT_ABI = [
   "function pay(string calldata item) external payable",
