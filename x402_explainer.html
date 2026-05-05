@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>x402 Protocol — 시각적 학습 가이드</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg:       #080c10;
+  --surface:  #0d1219;
+  --panel:    #111820;
+  --border:   #1e2d3d;
+  --accent:   #00d4ff;
+  --green:    #00ff9d;
+  --amber:    #ffb800;
+  --red:      #ff4b6e;
+  --purple:   #9d7dff;
+  --text:     #e8f0fe;
+  --muted:    #4a6080;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Syne', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* 배경 그리드 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+header {
+  text-align: center;
+  padding: 60px 20px 40px;
+  position: relative;
+}
+
+header::after {
+  content: '';
+  display: block;
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  margin: 30px auto 0;
+}
+
+.title-badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 4px 12px;
+  border-radius: 2px;
+  letter-spacing: 0.2em;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+h1 {
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+h1 span { color: var(--accent); }
+
+.subtitle {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+/* 메인 컨테이너 */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* 섹션 헤더 */
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* 플레이어 카드 */
+.players {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.player {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.player::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.player.client::before  { background: var(--purple); }
+.player.metamask::before { background: var(--amber); }
+.player.server::before  { background: var(--accent); }
+.player.chain::before   { background: var(--green); }
+
+.player-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.player-name {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.player-desc {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* 시뮬레이터 */
+.simulator {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+
+.sim-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sim-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+.sim-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 7px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+}
+.btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* 시뮬레이션 본문 */
+.sim-body {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  min-height: 480px;
+}
+
+/* 메시지 흐름 */
+.msg-flow {
+  padding: 24px;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.flow-item {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.4s ease;
+  max-height: 0;
+  overflow: hidden;
+}
+
+.flow-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 200px;
+  margin-bottom: 16px;
+}
+
+.flow-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.arrow-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.arrow-line {
+  width: 1px;
+  flex: 1;
+  min-height: 20px;
+  background: var(--border);
+}
+
+.flow-content {
+  flex: 1;
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 12px 14px;
+  border-left: 2px solid transparent;
+}
+
+.flow-content.req  { border-color: var(--purple); }
+.flow-content.res-402 { border-color: var(--amber); }
+.flow-content.sign { border-color: var(--accent); }
+.flow-content.pay  { border-color: var(--accent); }
+.flow-content.chain { border-color: var(--green); }
+.flow-content.res-200 { border-color: var(--green); }
+
+.flow-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.flow-from-to {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.flow-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: 700;
+}
+
+.badge-402 { background: rgba(255,184,0,0.15); color: var(--amber); }
+.badge-200 { background: rgba(0,255,157,0.15); color: var(--green); }
+.badge-sign { background: rgba(0,212,255,0.15); color: var(--accent); }
+.badge-tx { background: rgba(157,125,255,0.15); color: var(--purple); }
+.badge-get { background: rgba(74,96,128,0.15); color: var(--muted); }
+
+.flow-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.flow-msg {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.7;
+  background: var(--bg);
+  border-radius: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.flow-msg .key   { color: var(--accent); }
+.flow-msg .val   { color: var(--green); }
+.flow-msg .str   { color: var(--amber); }
+.flow-msg .num   { color: var(--purple); }
+
+/* 사이드패널 */
+.side-panel {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.info-card-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+.info-row:last-child { border-bottom: none; }
+.info-key { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+.info-val { color: var(--text); font-weight: 600; }
+.info-val.green { color: var(--green); }
+.info-val.amber { color: var(--amber); }
+.info-val.accent { color: var(--accent); }
+
+/* 진행 단계 */
+.step-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.step-dot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  transition: color 0.3s;
+}
+
+.step-dot.active { color: var(--accent); }
+.step-dot.done   { color: var(--green); }
+
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+
+.step-dot.active .dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.step-dot.done .dot   { background: var(--green); }
+
+/* 메시지 상세 */
+.msg-detail {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+.msg-detail.show { display: block; }
+
+.msg-detail-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  margin-bottom: 10px;
+}
+
+.msg-code {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.8;
+  color: var(--muted);
+  word-break: break-all;
+}
+.msg-code .hl { color: var(--amber); }
+
+/* 개념 설명 섹션 */
+.concepts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.concept-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+}
+
+.concept-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.concept-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.concept-body {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.concept-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-top: 10px;
+  letter-spacing: 0.1em;
+}
+
+/* 비교 테이블 */
+.compare {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+
+.compare-header {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.compare-cell {
+  padding: 12px 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  border-right: 1px solid var(--border);
+}
+.compare-cell:last-child { border-right: none; }
+.compare-cell.accent { color: var(--accent); }
+.compare-cell.green { color: var(--green); }
+
+.compare-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.compare-row:last-child { border-bottom: none; }
+.compare-row:hover { background: var(--surface); }
+
+.compare-row .compare-cell {
+  color: var(--text);
+  font-size: 12px;
+}
+.compare-row .compare-cell:first-child {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* 반응형 */
+@media (max-width: 700px) {
+  .players { grid-template-columns: repeat(2, 1fr); }
+  .sim-body { grid-template-columns: 1fr; }
+  .side-panel { border-top: 1px solid var(--border); }
+  .concepts { grid-template-columns: 1fr; }
+  .compare-header, .compare-row { grid-template-columns: 1fr 1fr; }
+  .compare-cell:nth-child(3) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-badge">BLOCKCHAIN PAYMENT PROTOCOL</div>
+  <h1>x<span>402</span> 프로토콜</h1>
+  <p class="subtitle">HTTP 402 기반 블록체인 결제 — 시각적 학습 가이드</p>
+</header>
+
+<div class="container">
+
+  <!-- 참여자 -->
+  <div class="section-label">참여자 (Actors)</div>
+  <div class="players">
+    <div class="player client">
+      <span class="player-icon">🖥</span>
+      <div class="player-name">index.html</div>
+      <div class="player-desc">고객 지갑 UI<br>HTTP 요청 생성<br>서명 메시지 조립</div>
+    </div>
+    <div class="player metamask">
+      <span class="player-icon">🦊</span>
+      <div class="player-name">MetaMask</div>
+      <div class="player-desc">개인키 보관<br>서명 팝업 표시<br>트랜잭션 전송</div>
+    </div>
+    <div class="player server">
+      <span class="player-icon">☁️</span>
+      <div class="player-name">server.js</div>
+      <div class="player-desc">Firebase Functions<br>서명 검증 (ecrecover)<br>잔액 확인 / 402 응답</div>
+    </div>
+    <div class="player chain">
+      <span class="player-icon">⛓</span>
+      <div class="player-name">Sepolia</div>
+      <div class="player-desc">블록체인 네트워크<br>SmartContract 실행<br>트랜잭션 영구 기록</div>
+    </div>
+  </div>
+
+  <!-- 시뮬레이터 -->
+  <div class="section-label">메시지 흐름 시뮬레이터</div>
+  <div class="simulator">
+    <div class="sim-header">
+      <span class="sim-title">// x402 PAYMENT FLOW — ESPRESSO 0.0015 ETH</span>
+      <div class="sim-controls">
+        <button class="btn btn-primary" id="btnNext" onclick="nextStep()">▶ 다음 단계</button>
+        <button class="btn btn-ghost" onclick="resetSim()">↺ 초기화</button>
+      </div>
+    </div>
+    <div class="sim-body">
+      <div class="msg-flow" id="msgFlow">
+        <!-- 메시지 아이템들 -->
+        <div class="flow-item" id="f1">
+          <div class="flow-arrow">
+            <span class="arrow-icon" style="color:#9d7dff">→</span>
+            <div class="arrow-line"></div>
+          </div>
+          <div class="flow-content req">
+            <div class="flow-meta">
+              <span class="flow-from-to">index.html → server.js</span>
+              <span class="flow-badge badge-get">GET</span>
+            </div>
+            <div class="flow-title">① 리소스 요청</div>
+            <div class="flow-msg"><span class="key">GET</span> <span class="str">/order?item=espresso</span>
+<span class="key">Host:</span> <span class="val">us-central1-starbucks-x402.cloudfunctions.net</span>
+<span class="key">X-PAYMENT:</span> <span class="val">(없음)</span></div>
+          </div>
+        </div>
+
+        <div class="flow-item" id="f2">
+          <div class="flow-arrow">
+            <span class="arrow-icon" style="color:#ffb800">←</span>
+            <div class="arrow-line"></div>
+          </div>
+          <div class="flow-content res-402">
+            <div class="flow-meta">
+              <span class="flow-from-to">server.js → index.html</span>
+              <span class="flow-badge badge-402">402</span>
+            </div>
+            <div class="flow-title">② Payment Required</div>
+            <div class="flow-msg">{
+  <span class="key">"item"</span>:    <span class="str">"espresso"</span>,
+  <span class="key">"name"</span>:    <span class="str">"Espresso"</span>,
+  <span class="key">"amount"</span>:  <span class="str">"0.0015"</span>,
+  <span class="key">"to"</span>:      <span class="str">"0x29a6...3445"</span>,
+  <span class="key">"message"</span>: <span class="str">"0.0015 ETH가 필요합니다"</span>
+}</div>
+          </div>
+        </div>
+
+        <div class="flow-item" id="f3">
+          <div class="flow-arrow">
+            <span class="arrow-icon" style="color:#00d4ff">→</span>
+            <div class="arrow-line"></div>
+          </div>
+          <div class="flow-content sign">
+            <div class="flow-meta">
+              <span class="flow-from-to">index.html → MetaMask</span>
+              <span class="flow-badge badge-sign">SIGN</span>
+            </div>
+            <div class="flow-title">③ HTTP 서명 요청 (트랜잭션 아님)</div>
+            <div class="flow-msg">signer.<span class="key">signMessage</span>({
+  <span class="key">"item"</span>:   <span class="str">"espresso"</span>,
+  <span class="key">"amount"</span>: <span class="str">"0.0015"</span>,
+  <span class="key">"to"</span>:     <span class="str">"0x29a6...3445"</span>,
+  <span class="key">"from"</span>:   <span class="str">"0xAD2B...D533"</span>,
+  <span class="key">"nonce"</span>:  <span class="num">1777946390236</span>
+})</div>
+          </div>
+        </div>
+
+        <div class="flow-item" id="f4">
+          <div class="flow-arrow">
+            <span class="arrow-icon" style="color:#00d4ff">←</span>
+            <div class="arrow-line"></div>
+          </div>
+          <div class="flow-content sign">
+            <div class="flow-meta">
+              <span class="flow-from-to">MetaMask → index.html</span>
+              <span class="flow-badge badge-sign">SIG</span>
+            </div>
+            <div class="flow-title">④ 서명값 반환 (개인키 비공개)</div>
+            <div class="flow-msg"><span class="key">signature</span> = <span class="str">"0x7f3a9b2c...e4d1"</span>
+<span class="key">// 개인키는 MetaMask 밖으로 절대 나오지 않음</span>
+<span class="key">// ecrecover로 서명자 주소 복원 가능</span></div>
+          </div>
+        </div>
+
+        <div class="flow-item" id="f5">
+          <div class="flow-arrow">
+            <span class="arrow-icon" style="color:#9d7dff">→</span>
+            <div class="arrow-line"></div>
+          </div>
+          <div class="flow-content pay">
+            <div class="flow-meta">
+              <span class="flow-from-to">index.html → server.js</span>
+              <span class="flow-badge badge-get">GET + X-PAYMENT</span>
+            </div>
+            <div class="flow-title">⑤ 서명 포함 재요청</div>
+            <div class="flow-msg"><span class="key">GET</span> <span class="str">/order?item=espresso</span>
+<span class="key">X-PAYMENT:</span> <span class="val">eyJzaWduYXR1cmUi...</span>
+<span class="key">// Base64 인코딩된 { signature, message, from }</span></div>
+          </div>
+        </div>
+
+        <div class="flow-item" id="f6">
+          <div class="flow-arrow">
+            <span class="arrow-icon" style="color:#00d4ff">⚙</span>
+            <div class="arrow-line"></div>
+          </div>
+          <div class="flow-content pay">
+            <div class="flow-meta">
+              <span class="flow-from-to">server.js 내부 처리</span>
+              <span class="flow-badge badge-sign">VERIFY</span>
+            </div>
+            <div class="flow-title">⑥ 서명 검증 + 잔액 확인</div>
+            <div class="flow-msg"><span class="key">// ① ecrecover (오프체인)</span>
+ethers.<span class="key">verifyMessage</span>(message, signature)
+→ <span class="val">"0xAD2B...D533"</span> ✓
+
+<span class="key">// ② eth_call (온체인 읽기)</span>
+provider.<span class="key">getBalance</span>(<span class="str">"0xAD2B...D533"</span>)
+→ <span class="num">1.55 ETH</span> ≥ <span class="num">0.0015 ETH</span> ✓</div>
+          </div>
+        </div>
+
+        <div class="flow-item" id="f7">
+          <div class="flow-arrow">
+            <span class="arrow-icon" style="color:#00ff9d">→</span>
+            <div class="arrow-line"></div>
+          </div>
+          <div class="flow-content chain">
+            <div class="flow-meta">
+              <span class="flow-from-to">server.js → Sepolia</span>
+              <span class="flow-badge badge-tx">TX</span>
+            </div>
+            <div class="flow-title">⑦ 트랜잭션 제출 (온체인 쓰기)</div>
+            <div class="flow-msg">contract.<span class="key">pay</span>(<span class="str">"espresso"</span>, {
+  <span class="key">value</span>: ethers.<span class="key">parseEther</span>(<span class="str">"0.0015"</span>)
+})
+→ tx.hash: <span class="val">"0x8f2a...c91d"</span>
+→ <span class="key">emit</span> <span class="val">PaymentReceived</span>(from, amount, item)
+→ <span class="key">블록체인 영구 기록</span> ✓</div>
+          </div>
+        </div>
+
+        <div class="flow-item" id="f8">
+          <div class="flow-arrow">
+            <span class="arrow-icon" style="color:#00ff9d">←</span>
+          </div>
+          <div class="flow-content res-200">
+            <div class="flow-meta">
+              <span class="flow-from-to">server.js → index.html</span>
+              <span class="flow-badge badge-200">200 OK</span>
+            </div>
+            <div class="flow-title">⑧ 주문 완료!</div>
+            <div class="flow-msg">{
+  <span class="key">"message"</span>: <span class="str">"Espresso order complete"</span>,
+  <span class="key">"receipt"</span>: {
+    <span class="key">"from"</span>:   <span class="str">"0xAD2B...D533"</span>,
+    <span class="key">"to"</span>:     <span class="str">"0x29a6...3445"</span>,
+    <span class="key">"amount"</span>: <span class="str">"0.0015 ETH"</span>,
+    <span class="key">"tx"</span>:     <span class="str">"0x8f2a...c91d"</span>
+  }
+}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 사이드 패널 -->
+      <div class="side-panel">
+        <!-- 단계 표시 -->
+        <div class="info-card">
+          <div class="info-card-title">진행 단계</div>
+          <div class="step-indicator">
+            <div class="step-dot" id="s1"><div class="dot"></div>① GET 요청</div>
+            <div class="step-dot" id="s2"><div class="dot"></div>② 402 수신</div>
+            <div class="step-dot" id="s3"><div class="dot"></div>③ 서명 요청</div>
+            <div class="step-dot" id="s4"><div class="dot"></div>④ 서명 반환</div>
+            <div class="step-dot" id="s5"><div class="dot"></div>⑤ 재요청</div>
+            <div class="step-dot" id="s6"><div class="dot"></div>⑥ 검증</div>
+            <div class="step-dot" id="s7"><div class="dot"></div>⑦ 트랜잭션</div>
+            <div class="step-dot" id="s8"><div class="dot"></div>⑧ 200 OK</div>
+          </div>
+        </div>
+
+        <!-- 지갑 상태 -->
+        <div class="info-card">
+          <div class="info-card-title">지갑 상태</div>
+          <div class="info-row">
+            <span class="info-key">from</span>
+            <span class="info-val accent">0xAD2B...D533</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">잔액</span>
+            <span class="info-val green" id="balance">1.5500 ETH</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">결제금액</span>
+            <span class="info-val amber">0.0015 ETH</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">tx 상태</span>
+            <span class="info-val" id="txStatus">대기중</span>
+          </div>
+        </div>
+
+        <!-- 현재 메시지 설명 -->
+        <div class="msg-detail" id="msgDetail">
+          <div class="msg-detail-title" id="detailTitle">// 설명</div>
+          <div class="msg-code" id="detailBody"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 핵심 개념 -->
+  <div class="section-label">핵심 개념 (Key Concepts)</div>
+  <div class="concepts">
+    <div class="concept-card">
+      <div class="concept-num">// 01</div>
+      <div class="concept-title">HTTP 서명 vs 트랜잭션</div>
+      <div class="concept-body">③④ 단계의 서명은 HTTP 메시지 서명입니다. 블록체인에 기록되지 않고 가스비도 없습니다. 실제 트랜잭션은 ⑦번 한 번뿐입니다.</div>
+      <span class="concept-tag" style="background:rgba(0,212,255,0.1);color:var(--accent)">OFF-CHAIN</span>
+    </div>
+    <div class="concept-card">
+      <div class="concept-num">// 02</div>
+      <div class="concept-title">ecrecover</div>
+      <div class="concept-body">서명값과 원본 메시지만으로 서명자 주소를 수학적으로 복원합니다. 개인키 없이도 "누가 서명했는지" 검증 가능한 것이 핵심입니다.</div>
+      <span class="concept-tag" style="background:rgba(255,184,0,0.1);color:var(--amber)">CRYPTOGRAPHY</span>
+    </div>
+    <div class="concept-card">
+      <div class="concept-num">// 03</div>
+      <div class="concept-title">402 상태코드</div>
+      <div class="concept-body">1999년 HTTP/1.1 스펙에 예약만 되고 26년간 사용되지 않았습니다. Coinbase가 2025년에 이를 블록체인 결제 표준으로 부활시켰습니다.</div>
+      <span class="concept-tag" style="background:rgba(0,255,157,0.1);color:var(--green)">PROTOCOL</span>
+    </div>
+  </div>
+
+  <!-- 비교 -->
+  <div class="section-label">카드결제 vs x402</div>
+  <div class="compare">
+    <div class="compare-header">
+      <div class="compare-cell">비교 항목</div>
+      <div class="compare-cell accent">신용카드</div>
+      <div class="compare-cell green">x402</div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-cell">중간 기관</div>
+      <div class="compare-cell">카드사 / PG사 / 은행</div>
+      <div class="compare-cell" style="color:var(--green)">없음 (블록체인)</div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-cell">결제 수수료</div>
+      <div class="compare-cell">1~3%</div>
+      <div class="compare-cell" style="color:var(--green)">가스비만</div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-cell">결제 완료 시간</div>
+      <div class="compare-cell">1~3일 (정산)</div>
+      <div class="compare-cell" style="color:var(--green)">수 초 (블록 확인)</div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-cell">계정 없이 결제</div>
+      <div class="compare-cell" style="color:var(--red)">불가</div>
+      <div class="compare-cell" style="color:var(--green)">가능 (지갑만 있으면)</div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-cell">결제 기록</div>
+      <div class="compare-cell">카드사 DB (비공개)</div>
+      <div class="compare-cell" style="color:var(--green)">블록체인 (공개/불변)</div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-cell">프로그래밍 연동</div>
+      <div class="compare-cell">API 계약 필요</div>
+      <div class="compare-cell" style="color:var(--green)">미들웨어 한 줄</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentStep = 0;
+const totalSteps = 8;
+
+const details = [
+  {
+    title: "// ① GET 요청 — 결제 없이 리소스 요청",
+    body: `index.html이 서버에 주문을 요청합니다.
+X-PAYMENT 헤더가 없으므로
+서버는 402를 반환할 준비를 합니다.
+
+→ 이 요청만으로는 아무것도 결제되지 않습니다.`
+  },
+  {
+    title: "// ② 402 Payment Required — 얼마 내세요",
+    body: `서버가 결제 정보를 반환합니다.
+26년간 잠자던 HTTP 상태코드 402가
+드디어 실제로 사용됩니다.
+
+amount: 결제해야 할 금액
+to: 컨트랙트 주소 (스타벅스 지갑)`
+  },
+  {
+    title: "// ③ HTTP 서명 요청 — MetaMask 팝업",
+    body: `index.html이 서명할 메시지를 만들고
+MetaMask에 서명을 요청합니다.
+
+이것은 트랜잭션이 아닙니다!
+블록체인에 기록되지 않고
+가스비도 발생하지 않습니다.`
+  },
+  {
+    title: "// ④ 서명 반환 — 개인키는 절대 비공개",
+    body: `MetaMask가 개인키로 메시지에 서명하고
+서명값(signature)만 반환합니다.
+
+개인키 자체는 MetaMask 밖으로
+절대 나오지 않습니다.
+이것이 Web3 지갑 보안의 핵심입니다.`
+  },
+  {
+    title: "// ⑤ X-PAYMENT 헤더 포함 재요청",
+    body: `서명값을 Base64로 인코딩하여
+X-PAYMENT 헤더에 담아 재요청합니다.
+
+헤더 내용:
+{ signature, message, from }
+
+서버가 이를 받아 검증을 시작합니다.`
+  },
+  {
+    title: "// ⑥ 검증 — 오프체인 + 온체인 읽기",
+    body: `서버가 두 가지를 검증합니다:
+
+① ecrecover (수학 연산, 가스비 없음)
+   서명→서명자 주소 복원→일치 확인
+
+② eth_call (블록체인 읽기, 가스비 없음)
+   잔액이 결제금액 이상인지 확인`
+  },
+  {
+    title: "// ⑦ 트랜잭션 제출 — 진짜 온체인",
+    body: `검증 완료 후 서버 지갑이
+실제 트랜잭션을 블록체인에 제출합니다.
+
+SimplePayment.pay("espresso") 호출
+→ 컨트랙트 잔액 증가
+→ PaymentReceived 이벤트 발생
+→ 영구 기록 (수정 불가)`
+  },
+  {
+    title: "// ⑧ 200 OK — 커피 나옵니다 ☕",
+    body: `블록체인 확인 완료 후
+서버가 200 OK와 영수증을 반환합니다.
+
+tx hash로 Sepolia Etherscan에서
+본인의 결제 내역을 직접 확인할 수 있습니다.
+이것이 블록체인 결제의 투명성입니다.`
+  }
+];
+
+function nextStep() {
+  if (currentStep >= totalSteps) return;
+
+  currentStep++;
+  const item = document.getElementById('f' + currentStep);
+  const step = document.getElementById('s' + currentStep);
+
+  // 이전 단계 done으로
+  for (let i = 1; i < currentStep; i++) {
+    document.getElementById('s' + i).className = 'step-dot done';
+  }
+
+  // 현재 단계 active
+  step.className = 'step-dot active';
+  item.classList.add('visible');
+
+  // 사이드 패널 업데이트
+  const detail = document.getElementById('msgDetail');
+  detail.classList.add('show');
+  document.getElementById('detailTitle').textContent = details[currentStep-1].title;
+  document.getElementById('detailBody').textContent  = details[currentStep-1].body;
+
+  // 잔액/상태 업데이트
+  if (currentStep === 7) {
+    document.getElementById('txStatus').textContent = '전송중...';
+    document.getElementById('txStatus').style.color = 'var(--amber)';
+  }
+  if (currentStep === 8) {
+    document.getElementById('balance').textContent = '1.5485 ETH';
+    document.getElementById('txStatus').textContent = '완료 ✓';
+    document.getElementById('txStatus').style.color = 'var(--green)';
+  }
+
+  // 스크롤
+  item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // 버튼 상태
+  if (currentStep >= totalSteps) {
+    document.getElementById('btnNext').textContent = '완료 ✓';
+    document.getElementById('btnNext').disabled = true;
+  }
+}
+
+function resetSim() {
+  currentStep = 0;
+  for (let i = 1; i <= totalSteps; i++) {
+    document.getElementById('f' + i).classList.remove('visible');
+    document.getElementById('s' + i).className = 'step-dot';
+  }
+  document.getElementById('msgDetail').classList.remove('show');
+  document.getElementById('balance').textContent = '1.5500 ETH';
+  document.getElementById('balance').style.color = 'var(--green)';
+  document.getElementById('txStatus').textContent = '대기중';
+  document.getElementById('txStatus').style.color = '';
+  document.getElementById('btnNext').textContent = '▶ 다음 단계';
+  document.getElementById('btnNext').disabled = false;
+}
+</script>
+</body>
+</html>
